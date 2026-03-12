@@ -6,27 +6,67 @@
 //
 
 import SwiftUI
-import SwiftData
 
 @main
-struct ProjectAmbrosiaApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+struct MacRoboSimApp: App {
 
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    @StateObject private var simulatorState = SimulatorState()
+    @StateObject private var vmManager = VMManager()
+    @StateObject private var rosBridge = ROSBridge()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(simulatorState)
+                .environmentObject(vmManager)
+                .environmentObject(rosBridge)
+                .task {
+                    // Start TCP listener BEFORE booting the VM.
+                    rosBridge.startListening()
+
+                    // Wire vsock handler — used by Virtualization.framework VM (bypasses firewall)
+                    vmManager.vsockConnectionHandler = { [weak rosBridge] fh in
+                        rosBridge?.acceptVsockConnection(fh)
+                    }
+
+                    // Wire bridge callbacks into simulator state.
+                    rosBridge.onJointStates = { [weak simulatorState] values in
+                        Task { @MainActor in
+                            for (name, value) in values {
+                                simulatorState?.setJointValue(value, for: name)
+                            }
+                        }
+                    }
+
+                    rosBridge.onRobotDescription = { [weak simulatorState] urdfString in
+                        Task { @MainActor in
+                            do {
+                                let model = try URDFParser.parse(xmlString: urdfString)
+                                simulatorState?.applyRobot(model)
+                            } catch {
+                                simulatorState?.errorMessage = error.localizedDescription
+                            }
+                        }
+                    }
+
+                    await vmManager.boot()
+                }
         }
-        .modelContainer(sharedModelContainer)
+        .windowStyle(.titleBar)
+        .windowToolbarStyle(.unified)
+        .commands {
+            CommandGroup(after: .newItem) {
+                Button("Load URDF…") {
+                    // Handled inside ContentView via toolbar button.
+                    // This entry provides a matching menu item.
+                    NotificationCenter.default.post(name: .loadURDF, object: nil)
+                }
+                .keyboardShortcut("o", modifiers: [.command])
+            }
+        }
     }
+}
+
+extension Notification.Name {
+    static let loadURDF = Notification.Name("com.macrobosim.loadURDF")
 }

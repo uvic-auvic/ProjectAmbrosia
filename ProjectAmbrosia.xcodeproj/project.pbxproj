@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		BE37EDF42F61554E009C95AE /* Virtualization.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE37EDF32F61554E009C95AE /* Virtualization.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		BEB266C12F62210400890EE8 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = BEB266C02F62210400890EE8 /* SwiftTerm */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		BE4A07122F5F794A00E2795A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BE37EDF32F61554E009C95AE /* Virtualization.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Virtualization.framework; path = System/Library/Frameworks/Virtualization.framework; sourceTree = SDKROOT; };
 		BE4A07022F5F794900E2795A /* ProjectAmbrosia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProjectAmbrosia.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE4A07112F5F794A00E2795A /* ProjectAmbrosiaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProjectAmbrosiaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE4A071B2F5F794A00E2795A /* ProjectAmbrosiaUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ProjectAmbrosiaUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -52,6 +58,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BEB266C12F62210400890EE8 /* SwiftTerm in Frameworks */,
+				BE37EDF42F61554E009C95AE /* Virtualization.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,12 +80,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BE37EDF22F61554E009C95AE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BE37EDF32F61554E009C95AE /* Virtualization.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		BE4A06F92F5F794900E2795A = {
 			isa = PBXGroup;
 			children = (
 				BE4A07042F5F794900E2795A /* ProjectAmbrosia */,
 				BE4A07142F5F794A00E2795A /* ProjectAmbrosiaTests */,
 				BE4A071E2F5F794A00E2795A /* ProjectAmbrosiaUITests */,
+				BE37EDF22F61554E009C95AE /* Frameworks */,
 				BE4A07032F5F794900E2795A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +129,7 @@
 			);
 			name = ProjectAmbrosia;
 			packageProductDependencies = (
+				BEB266C02F62210400890EE8 /* SwiftTerm */,
 			);
 			productName = ProjectAmbrosia;
 			productReference = BE4A07022F5F794900E2795A /* ProjectAmbrosia.app */;
@@ -195,6 +213,9 @@
 			);
 			mainGroup = BE4A06F92F5F794900E2795A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				BEB266BF2F62210400890EE8 /* XCRemoteSwiftPackageReference "SwiftTerm" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BE4A07032F5F794900E2795A /* Products */;
 			projectDirPath = "";
@@ -394,6 +415,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				"CODE_SIGN_ENTITLEMENTS[sdk=*]" = ProjectAmbrosia/MacRoboSim.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development: Marcus Ganz (H25K5NBXU8)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -426,6 +450,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				"CODE_SIGN_ENTITLEMENTS[sdk=*]" = ProjectAmbrosia/MacRoboSim.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development: Marcus Ganz (H25K5NBXU8)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -573,6 +600,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		BEB266BF2F62210400890EE8 /* XCRemoteSwiftPackageReference "SwiftTerm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/migueldeicaza/SwiftTerm";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BEB266C02F62210400890EE8 /* SwiftTerm */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BEB266BF2F62210400890EE8 /* XCRemoteSwiftPackageReference "SwiftTerm" */;
+			productName = SwiftTerm;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = BE4A06FA2F5F794900E2795A /* Project object */;
 }
