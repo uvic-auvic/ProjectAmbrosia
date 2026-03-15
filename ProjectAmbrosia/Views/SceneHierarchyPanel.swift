@@ -17,7 +17,6 @@ struct SceneHierarchyPanel: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .navigationTitle("Hierarchy")
     }
 
     // MARK: - Robot Tree

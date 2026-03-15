@@ -53,7 +53,7 @@ struct MacRoboSimApp: App {
                 }
         }
         .windowStyle(.titleBar)
-        .windowToolbarStyle(.unified)
+        .windowToolbarStyle(.unifiedCompact(showsTitle: false))
         .commands {
             CommandGroup(after: .newItem) {
                 Button("Load URDF…") {

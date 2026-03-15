@@ -21,7 +21,6 @@ struct InspectorPanel: View {
             }
             .padding()
         }
-        .navigationTitle("Inspector")
     }
 
     // MARK: - Bridge Status
