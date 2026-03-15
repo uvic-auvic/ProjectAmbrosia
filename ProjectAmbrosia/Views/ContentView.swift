@@ -10,54 +10,73 @@ struct ContentView: View {
     @EnvironmentObject var vmManager: VMManager
     @EnvironmentObject var rosBridge: ROSBridge
 
-    @State private var showConsole = false
+    @State private var showSidebar   = true
+    @State private var showInspector = true
+    @State private var showTerminal  = false
+    @State private var terminalHeight: CGFloat = 260
     @State private var showURDFImporter = false
 
+    // Fixed-width panels (can add drag-resize later)
+    private let sidebarWidth:   CGFloat = 240
+    private let inspectorWidth: CGFloat = 280
+
     var body: some View {
-        NavigationSplitView {
-            SceneHierarchyPanel()
-                .environmentObject(simulatorState)
-                .navigationSplitViewColumnWidth(min: 200, ideal: 240)
-        } content: {
-            ViewportView(scene: simulatorState.scene)
-                .toolbar {
-                    SimulationToolbar()
-//                        .environmentObject(simulatorState)
-//                        .environmentObject(vmManager)
+        VStack(spacing: 0) {
+            // ── Main workspace ──────────────────────────────────────────
+            HStack(spacing: 0) {
+
+                // Sidebar
+                if showSidebar {
+                    SceneHierarchyPanel()
+                        .environmentObject(simulatorState)
+                        .frame(width: sidebarWidth)
+                        .transition(.move(edge: .leading).combined(with: .slide))
+
+                    Divider()
                 }
-        } detail: {
-            InspectorPanel()
-                .environmentObject(simulatorState)
-                .environmentObject(rosBridge)
-                .navigationSplitViewColumnWidth(min: 240, ideal: 280)
+
+                // Viewport
+                ViewportView(scene: simulatorState.scene)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                // Inspector
+                if showInspector {
+                    Divider()
+
+                    InspectorPanel()
+                        .environmentObject(simulatorState)
+                        .environmentObject(rosBridge)
+                        .frame(width: inspectorWidth)
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            // ── Terminal panel ──────────────────────────────────────────
+            if showTerminal {
+                Divider()
+                TerminalPanelView(height: $terminalHeight)
+                    .environmentObject(vmManager)
+                    .environmentObject(rosBridge)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button("Load URDF…") { showURDFImporter = true }
-            }
-            ToolbarItem {
-                Button {
-                    showConsole = true
-                } label: {
-                    Label("VM Console", systemImage: "terminal")
-                }
-            }
+            SimulationToolbar(
+                showSidebar:       $showSidebar,
+                showInspector:     $showInspector,
+                showTerminal:      $showTerminal,
+                showURDFImporter:  $showURDFImporter
+            )
         }
         .fileImporter(
             isPresented: $showURDFImporter,
             allowedContentTypes: [.xml, UTType(filenameExtension: "urdf") ?? .xml],
             allowsMultipleSelection: false
-        ) { result in
-            handleURDFImport(result)
-        }
-        .sheet(isPresented: $showConsole) {
-            VMConsoleView()
-                .environmentObject(vmManager)
-                .environmentObject(rosBridge)
-        }
+        ) { handleURDFImport($0) }
         .alert("Error", isPresented: .init(
-            get: { simulatorState.errorMessage != nil },
-            set: { if !$0 { simulatorState.errorMessage = nil } }
+            get:  { simulatorState.errorMessage != nil },
+            set:  { if !$0 { simulatorState.errorMessage = nil } }
         )) {
             Button("OK") { simulatorState.errorMessage = nil }
         } message: {
