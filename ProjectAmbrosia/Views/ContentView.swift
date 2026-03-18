@@ -14,7 +14,7 @@ struct ContentView: View {
     @State private var showInspector = true
     @State private var showTerminal  = false
     @State private var terminalHeight: CGFloat = 260
-    @State private var showURDFImporter = false
+    @State private var showModelImporter = false
 
     // Fixed-width panels (can add drag-resize later)
     private let sidebarWidth:   CGFloat = 240
@@ -66,14 +66,18 @@ struct ContentView: View {
                 showSidebar:       $showSidebar,
                 showInspector:     $showInspector,
                 showTerminal:      $showTerminal,
-                showURDFImporter:  $showURDFImporter
+                showModelImporter: $showModelImporter
             )
         }
         .fileImporter(
-            isPresented: $showURDFImporter,
-            allowedContentTypes: [.xml, UTType(filenameExtension: "urdf") ?? .xml],
+            isPresented: $showModelImporter,
+            allowedContentTypes: [
+                .xml,
+                UTType(filenameExtension: "urdf") ?? .xml,
+                UTType(filenameExtension: "obj") ?? .plainText
+            ],
             allowsMultipleSelection: false
-        ) { handleURDFImport($0) }
+        ) { handleModelImport($0) }
         .alert("Error", isPresented: .init(
             get:  { simulatorState.errorMessage != nil },
             set:  { if !$0 { simulatorState.errorMessage = nil } }
@@ -84,22 +88,47 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - URDF Import
+    // MARK: - Model Import
 
-    private func handleURDFImport(_ result: Result<[URL], Error>) {
+    private func handleModelImport(_ result: Result<[URL], Error>) {
         switch result {
         case .success(let urls):
             guard let url = urls.first else { return }
             let accessing = url.startAccessingSecurityScopedResource()
             defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+            
+            let fileExtension = url.pathExtension.lowercased()
             do {
-                let model = try URDFParser.parse(url: url)
+                let model: RobotModel
+                
+                switch fileExtension {
+                case "obj":
+                    model = try OBJLoader.loadOBJAsRobotModel(from: url)
+                case "urdf":
+                    model = try URDFParser.parse(url: url)
+                default:
+                    throw ModelImportError.unsupportedFileType(fileExtension)
+                }
+                
                 simulatorState.applyRobot(model)
             } catch {
                 simulatorState.errorMessage = error.localizedDescription
             }
         case .failure(let error):
             simulatorState.errorMessage = error.localizedDescription
+        }
+    }
+}
+
+// MARK: - ModelImportError
+
+enum ModelImportError: LocalizedError {
+    case unsupportedFileType(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .unsupportedFileType(let ext):
+            return "Unsupported file type: .\(ext). Supported formats: .urdf, .obj"
         }
     }
 }

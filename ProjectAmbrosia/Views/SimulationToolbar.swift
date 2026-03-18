@@ -11,7 +11,7 @@ struct SimulationToolbar: ToolbarContent {
     @Binding var showSidebar:      Bool
     @Binding var showInspector:    Bool
     @Binding var showTerminal:     Bool
-    @Binding var showURDFImporter: Bool
+    @Binding var showModelImporter: Bool
 
     var body: some ToolbarContent {
         ToolbarItem(placement: .principal) {
@@ -70,9 +70,9 @@ struct SimulationToolbar: ToolbarContent {
                 sep
 
                 // ── File / Terminal ─────────────────────────────────────
-                Button("Load URDF…") { showURDFImporter = true }
+                Button("Load Model…") { showModelImporter = true }
                     .buttonStyle(.borderless)
-                    .help("Load URDF model")
+                    .help("Load model (.urdf or .obj)")
 
                 toggleButton("terminal", active: showTerminal, help: "Toggle Terminal  ⌃`") {
                     withAnimation(.easeInOut(duration: 0.2)) { showTerminal.toggle() }
